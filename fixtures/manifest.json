@@ -1,0 +1,1 @@
+{"transactionTime": "2026-11-12T00:00:00Z", "requiresAccessToken": true, "output": [{"type": "Patient", "url": "{{ORIGIN}}/files/patients"}, {"type": "Observation", "url": "{{ORIGIN}}/files/observations"}], "error": []}

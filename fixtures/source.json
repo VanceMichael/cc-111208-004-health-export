@@ -1,0 +1,68 @@
+{
+  "routes": {
+    "GET /Group/G1/$export": [
+      {
+        "status": 202,
+        "headers": {
+          "Content-Location": "{{ORIGIN}}/jobs/J1"
+        }
+      }
+    ],
+    "GET /jobs/J1": [
+      {
+        "status": 202,
+        "headers": {
+          "Retry-After": "0"
+        }
+      },
+      {
+        "body": "{\"transactionTime\": \"2026-11-12T00:00:00Z\", \"requiresAccessToken\": true, \"output\": [{\"type\": \"Patient\", \"url\": \"{{ORIGIN}}/files/patients\"}, {\"type\": \"Observation\", \"url\": \"{{ORIGIN}}/files/observations\"}], \"error\": []}"
+      }
+    ],
+    "DELETE /jobs/J1": [
+      {
+        "status": 202
+      }
+    ],
+    "GET /files/patients": [
+      {
+        "expect": {
+          "headers": {
+            "Authorization": "Bearer local-demo"
+          }
+        },
+        "body": "{\"resourceType\": \"Patient\", \"id\": \"P1\", \"meta\": {\"versionId\": \"opaque-vA\"}}\n"
+      }
+    ],
+    "GET /files/observations": [
+      {
+        "expect": {
+          "headers": {
+            "Authorization": "Bearer local-demo"
+          }
+        },
+        "body": "{\"resourceType\": \"Observation\", \"id\": \"O1\", \"meta\": {\"versionId\": \"v1\"}, \"subject\": {\"reference\": \"Patient/P1\"}}\n"
+      }
+    ],
+    "GET /public/manifest": [
+      {
+        "body": "{\"transactionTime\": \"2026-11-12T00:00:00Z\", \"requiresAccessToken\": false, \"output\": [{\"type\": \"Patient\", \"url\": \"{{ORIGIN}}/public/patients\"}], \"error\": []}"
+      }
+    ],
+    "GET /public/patients": [
+      {
+        "body": "{\"resourceType\": \"Patient\", \"id\": \"P1\", \"meta\": {\"versionId\": \"opaque-vA\"}}\n"
+      }
+    ],
+    "GET /error/manifest": [
+      {
+        "body": "{\"transactionTime\": \"2026-11-12T00:00:00Z\", \"requiresAccessToken\": true, \"output\": [{\"type\": \"Patient\", \"url\": \"{{ORIGIN}}/files/patients\"}, {\"type\": \"Observation\", \"url\": \"{{ORIGIN}}/files/observations\"}], \"error\": [{\"type\": \"OperationOutcome\", \"url\": \"{{ORIGIN}}/files/error\"}]}"
+      }
+    ],
+    "GET /files/error": [
+      {
+        "body": "{\"resourceType\": \"OperationOutcome\", \"issue\": [{\"severity\": \"error\", \"code\": \"processing\"}]}\n"
+      }
+    ]
+  }
+}
