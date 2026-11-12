@@ -4,7 +4,8 @@
       {
         "status": 202,
         "headers": {
-          "Content-Location": "{{ORIGIN}}/jobs/J1"
+          "Content-Location": "{{ORIGIN}}/jobs/J1",
+          "Retry-After": "0"
         }
       }
     ],
@@ -31,7 +32,7 @@
             "Authorization": "Bearer local-demo"
           }
         },
-        "body": "{\"resourceType\": \"Patient\", \"id\": \"P1\", \"meta\": {\"versionId\": \"opaque-vA\"}}\n"
+        "body": "{\"resourceType\": \"Patient\", \"id\": \"P1\", \"meta\": {\"versionId\": \"opaque-vA\"}}\n{\"resourceType\": \"Patient\", \"id\": \"P1\", \"meta\": {\"versionId\": \"opaque-vA\"}, \"active\": true}\n"
       }
     ],
     "GET /files/observations": [
@@ -62,6 +63,195 @@
     "GET /files/error": [
       {
         "body": "{\"resourceType\": \"OperationOutcome\", \"issue\": [{\"severity\": \"error\", \"code\": \"processing\"}]}\n"
+      }
+    ],
+    "GET /slow/manifest": [
+      {
+        "chunk": 24,
+        "delay": 0.01,
+        "body": "{\"transactionTime\": \"2026-11-12T00:00:00Z\", \"requiresAccessToken\": true, \"output\": [{\"type\": \"Patient\", \"url\": \"{{ORIGIN}}/slow/patients\"}], \"error\": []}\n"
+      }
+    ],
+    "GET /slow/patients": [
+      {
+        "chunk": 16,
+        "delay": 0.02,
+        "body": "{\"resourceType\": \"Patient\", \"id\": \"P1\", \"meta\": {\"versionId\": \"opaque-vA\"}}\n{\"resourceType\": \"Patient\", \"id\": \"P2\", \"meta\": {\"versionId\": \"opaque-vB\"}}\n{\"resourceType\": \"Patient\", \"id\": \"P3\", \"meta\": {\"versionId\": \"opaque-vC\"}}\n{\"resourceType\": \"Patient\", \"id\": \"P4\", \"meta\": {\"versionId\": \"opaque-vD\"}}\n{\"resourceType\": \"Patient\", \"id\": \"P5\", \"meta\": {\"versionId\": \"opaque-vE\"}}\n"
+      }
+    ],
+    "GET /cross/manifest": [
+      {
+        "body": "{\"transactionTime\": \"2026-11-12T00:00:00Z\", \"requiresAccessToken\": false, \"output\": [{\"type\": \"Observation\", \"url\": \"{{ORIGIN}}/cross/observations\"}, {\"type\": \"Patient\", \"url\": \"{{ORIGIN}}/cross/patients\"}], \"error\": []}"
+      }
+    ],
+    "GET /cross/observations": [
+      {
+        "body": "{\"resourceType\": \"Observation\", \"id\": \"O1\", \"meta\": {\"versionId\": \"v1\"}, \"subject\": {\"reference\": \"Patient/P1\"}}\n{\"resourceType\": \"Observation\", \"id\": \"O2\", \"meta\": {\"versionId\": \"v2\"}, \"subject\": {\"reference\": \"Patient/P9\"}}\n"
+      }
+    ],
+    "GET /cross/patients": [
+      {
+        "body": "{\"resourceType\": \"Patient\", \"id\": \"P1\", \"meta\": {\"versionId\": \"opaque-vA\"}}\n"
+      }
+    ],
+    "GET /conflict/manifest": [
+      {
+        "body": "{\"transactionTime\": \"2026-11-12T00:00:00Z\", \"requiresAccessToken\": false, \"output\": [{\"type\": \"Patient\", \"url\": \"{{ORIGIN}}/conflict/patients\"}], \"error\": []}"
+      }
+    ],
+    "GET /conflict/patients": [
+      {
+        "body": "{\"resourceType\": \"Patient\", \"id\": \"P1\", \"meta\": {\"versionId\": \"v10\"}}\n{\"resourceType\": \"Patient\", \"id\": \"P1\", \"meta\": {\"versionId\": \"v9\"}}\n"
+      }
+    ],
+    "GET /badline/manifest": [
+      {
+        "body": "{\"transactionTime\": \"2026-11-12T00:00:00Z\", \"requiresAccessToken\": false, \"output\": [{\"type\": \"Patient\", \"url\": \"{{ORIGIN}}/badline/patients\"}], \"error\": []}"
+      }
+    ],
+    "GET /badline/patients": [
+      {
+        "body": "{\"resourceType\": \"Patient\", \"id\": \"P1\", \"meta\": {\"versionId\": \"v1\"}}\nthis is not json\n{\"resourceType\": \"Patient\", \"id\": \"P2\", \"meta\": {\"versionId\": \"v1\"}}\n"
+      }
+    ],
+    "GET /wrongtype/manifest": [
+      {
+        "body": "{\"transactionTime\": \"2026-11-12T00:00:00Z\", \"requiresAccessToken\": false, \"output\": [{\"type\": \"Patient\", \"url\": \"{{ORIGIN}}/wrongtype/patients\"}], \"error\": []}"
+      }
+    ],
+    "GET /wrongtype/patients": [
+      {
+        "body": "{\"resourceType\": \"Observation\", \"id\": \"O1\", \"meta\": {\"versionId\": \"v1\"}}\n"
+      }
+    ],
+    "GET /truncated/manifest": [
+      {
+        "body": "{\"transactionTime\": \"2026-11-12T00:00:00Z\", \"requiresAccessToken\": true, \"output\": [{\"type\": \"Patient\", \"url\": \"{{ORIGIN}}/truncated/patients\"}], \"error\": []}"
+      }
+    ],
+    "GET /truncated/patients": [
+      {
+        "drop_after": 76,
+        "body": "{\"resourceType\": \"Patient\", \"id\": \"P1\", \"meta\": {\"versionId\": \"opaque-vA\"}}\n{\"resourceType\": \"Patient\", \"id\": \"P2\", \"meta\": {\"versionId\": \"opaque-vB\"}}\n"
+      }
+    ],
+    "GET /redirect/files/patients": [
+      {
+        "redirect_to": "http://127.0.0.1:1/files/patients",
+        "redirect_status": 302,
+        "body": "external redirect target is untrusted"
+      }
+    ],
+    "GET /slow-creating/$export": [
+      {
+        "status": 202,
+        "headers": {
+          "Content-Location": "{{ORIGIN}}/jobs/JSLOW",
+          "Retry-After": "0"
+        }
+      }
+    ],
+    "GET /jobs/JSLOW": [
+      {
+        "status": 202,
+        "headers": {
+          "Retry-After": "0"
+        }
+      },
+      {
+        "status": 202,
+        "headers": {
+          "Retry-After": "0"
+        }
+      },
+      {
+        "status": 202,
+        "headers": {
+          "Retry-After": "0"
+        }
+      },
+      {
+        "status": 202,
+        "headers": {
+          "Retry-After": "0"
+        }
+      },
+      {
+        "body": "{\"transactionTime\": \"2026-11-12T00:00:00Z\", \"requiresAccessToken\": true, \"output\": [{\"type\": \"Patient\", \"url\": \"{{ORIGIN}}/files/patients\"}], \"error\": []}"
+      }
+    ],
+    "DELETE /jobs/JSLOW": [
+      {
+        "status": 202
+      }
+    ],
+    "GET /retry-date/$export": [
+      {
+        "status": 202,
+        "headers": {
+          "Content-Location": "{{ORIGIN}}/jobs/JDATE",
+          "Retry-After": "Wed, 21 Oct 2099 07:28:00 GMT"
+        }
+      }
+    ],
+    "GET /jobs/JDATE": [
+      {
+        "status": 202,
+        "headers": {
+          "Retry-After": "Wed, 21 Oct 2099 07:28:00 GMT"
+        }
+      },
+      {
+        "body": "{\"transactionTime\": \"2026-11-12T00:00:00Z\", \"requiresAccessToken\": false, \"output\": [{\"type\": \"Patient\", \"url\": \"{{ORIGIN}}/public/patients\"}], \"error\": []}"
+      }
+    ],
+    "GET /Group/G2/$export": [
+      {
+        "status": 202,
+        "headers": {
+          "Content-Location": "{{ORIGIN}}/jobs/J2",
+          "Retry-After": "0"
+        }
+      }
+    ],
+    "GET /jobs/J2": [
+      {
+        "status": 202,
+        "headers": {
+          "Retry-After": "0"
+        }
+      },
+      {
+        "body": "{\"transactionTime\": \"2026-11-12T00:00:00Z\", \"requiresAccessToken\": true, \"output\": [{\"type\": \"Patient\", \"url\": \"{{ORIGIN}}/slow/patients\"}], \"error\": []}"
+      }
+    ],
+    "DELETE /jobs/J2": [
+      {
+        "status": 202
+      }
+    ],
+    "GET /Group/G3/$export": [
+      {
+        "status": 202,
+        "headers": {
+          "Content-Location": "{{ORIGIN}}/jobs/J3"
+        }
+      }
+    ],
+    "GET /jobs/J3": [
+      {
+        "status": 202,
+        "headers": {
+          "Retry-After": "Wed, 21 Oct 2099 07:28:00 GMT"
+        }
+      },
+      {
+        "body": "{\"transactionTime\": \"2026-11-12T00:00:00Z\", \"requiresAccessToken\": false, \"output\": [{\"type\": \"Patient\", \"url\": \"{{ORIGIN}}/public/patients\"}], \"error\": []}"
+      }
+    ],
+    "DELETE /jobs/J3": [
+      {
+        "status": 202
       }
     ]
   }
